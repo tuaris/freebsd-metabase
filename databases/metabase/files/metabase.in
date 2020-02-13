@@ -30,15 +30,15 @@ load_rc_config $name
 : ${%%PORTNAME%%_flags=""}
 : ${%%PORTNAME%%_java_opts=""}
 : ${%%PORTNAME%%_conf:="%%PREFIX%%/etc/${name}.conf"}
-: ${%%PORTNAME%%_log:=-"/var/log/{name}.log"}
-: ${%%PORTNAME%%_pidfile:=-"/var/run/{name}.pid"}
-: ${%%PORTNAME%%_datadir:=-"%%METABASEDATADIR%%"}
+: ${%%PORTNAME%%_log:="/var/log/${name}.log"}
+: ${%%PORTNAME%%_pidfile:="/var/run/${name}.pid"}
+: ${%%PORTNAME%%_datadir:="%%METABASEDATADIR%%"}
 
 required_files=${%%PORTNAME%%_conf}
 java_command="%%LOCALBASE%%/bin/java"
 procname="%%PREFIX%%/bin/%%PORTNAME%%.jar"
 command=/usr/sbin/daemon
-command_args="-f -c -p ${%%PORTNAME%%_pidfile} -o ${%%PORTNAME%%_log} ${java_command} ${%%PORTNAME%%_java_opts} -jar ${procname} ${%%PORTNAME%%_flags}"
+command_args="-f -t ${name} -p ${%%PORTNAME%%_pidfile} -o ${%%PORTNAME%%_log} ${java_command} ${%%PORTNAME%%_java_opts} -jar ${procname} ${%%PORTNAME%%_flags}"
 start_precmd="%%PORTNAME%%_precmd"
 
 %%PORTNAME%%_chdir=${%%PORTNAME%%_datadir}
@@ -48,6 +48,9 @@ start_precmd="%%PORTNAME%%_precmd"
 	if [ ! -d "${%%PORTNAME%%_datadir}/." ]; then
 		%%PORTNAME%%_create_datadir || return 1
 	fi
+
+	install -o ${%%PORTNAME%%_user} /dev/null ${%%PORTNAME%%_pidfile}
+	install -o ${%%PORTNAME%%_user} /dev/null ${%%PORTNAME%%_log}
 
 	# Loads the configuration file variables and exports them.
     set -a
