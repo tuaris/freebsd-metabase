@@ -29,16 +29,18 @@ load_rc_config $name
 : ${%%PORTNAME%%_group:="%%METABASE_GROUP%%"}
 : ${%%PORTNAME%%_flags=""}
 : ${%%PORTNAME%%_java_opts=""}
+: ${%%PORTNAME%%_java_home="%%JAVA_HOME%%"}
 : ${%%PORTNAME%%_conf:="%%PREFIX%%/etc/${name}.conf"}
 : ${%%PORTNAME%%_log:="/var/log/${name}.log"}
 : ${%%PORTNAME%%_pidfile:="/var/run/${name}.pid"}
 : ${%%PORTNAME%%_datadir:="%%METABASEDATADIR%%"}
 
 required_files=${%%PORTNAME%%_conf}
-java_command="%%LOCALBASE%%/bin/java"
-procname="%%PREFIX%%/bin/%%PORTNAME%%.jar"
+java_command="${%%PORTNAME%%_java_home}/bin/java"
+procname="${java_command}"
+pidfile=${%%PORTNAME%%_pidfile}
 command=/usr/sbin/daemon
-command_args="-f -t ${name} -p ${%%PORTNAME%%_pidfile} -o ${%%PORTNAME%%_log} ${java_command} ${%%PORTNAME%%_java_opts} -jar ${procname} ${%%PORTNAME%%_flags}"
+command_args="-f -t ${name} -p ${pidfile} -o ${%%PORTNAME%%_log} ${java_command} ${%%PORTNAME%%_java_opts} -jar %%PREFIX%%/bin/%%PORTNAME%%.jar ${%%PORTNAME%%_flags}"
 start_precmd="%%PORTNAME%%_precmd"
 
 %%PORTNAME%%_chdir=${%%PORTNAME%%_datadir}
@@ -50,7 +52,12 @@ start_precmd="%%PORTNAME%%_precmd"
 	fi
 
 	install -o ${%%PORTNAME%%_user} /dev/null ${%%PORTNAME%%_pidfile}
-	install -o ${%%PORTNAME%%_user} /dev/null ${%%PORTNAME%%_log}
+
+	if [ ! -f "${%%PORTNAME%%_log}" ]; then
+		touch "${%%PORTNAME%%_log}"
+		chown "${%%PORTNAME%%_user}:${%%PORTNAME%%_group}" "${%%PORTNAME%%_log}"
+		chmod 640 "${%%PORTNAME%%_log}"
+	fi
 
 	# Loads the configuration file variables and exports them.
     set -a
