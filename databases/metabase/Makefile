@@ -25,6 +25,8 @@ SUB_LIST+=	PORTNAME=${PORTNAME} \
 			METABASE_GROUP=${PORTNAME} \
 			JAVA_HOME=${JAVA_HOME}
 
+SUB_FILES=      pkg-message
+
 USE_JAVA=	yes
 NO_BUILD=	yes
 NO_ARCH=	yes
