@@ -11,7 +11,7 @@
 #
 # %%PORTNAME%%_enable (bool): 	Set to YES to enable %%PORTNAME%%
 #				Default: NO
-# %%PORTNAME%%_conf (str):		%%PORTNAME%% configration file
+# %%PORTNAME%%_env_file (str):	%%PORTNAME%% configration file
 #				Default: %%PREFIX%%/etc/%%PORTNAME%%.conf
 # %%PORTNAME%%_user (str):		%%PORTNAME%% daemon user
 #				Default: %%METABASE_USER%%
@@ -30,12 +30,12 @@ load_rc_config $name
 : ${%%PORTNAME%%_flags=""}
 : ${%%PORTNAME%%_java_opts=""}
 : ${%%PORTNAME%%_java_home="%%JAVA_HOME%%"}
-: ${%%PORTNAME%%_conf:="%%PREFIX%%/etc/${name}.conf"}
+: ${%%PORTNAME%%_env_file:="%%PREFIX%%/etc/${name}.conf"}
 : ${%%PORTNAME%%_log:="/var/log/${name}.log"}
 : ${%%PORTNAME%%_pidfile:="/var/run/${name}.pid"}
 : ${%%PORTNAME%%_datadir:="%%METABASEDATADIR%%"}
 
-required_files=${%%PORTNAME%%_conf}
+required_files=${%%PORTNAME%%_env_file}
 java_command="${%%PORTNAME%%_java_home}/bin/java"
 procname="${java_command}"
 pidfile=${%%PORTNAME%%_pidfile}
@@ -58,11 +58,6 @@ start_precmd="%%PORTNAME%%_precmd"
 		chown "${%%PORTNAME%%_user}:${%%PORTNAME%%_group}" "${%%PORTNAME%%_log}"
 		chmod 640 "${%%PORTNAME%%_log}"
 	fi
-
-	# Loads the configuration file variables and exports them.
-    set -a
-	. ${%%PORTNAME%%_conf}
-	set +a
 }
 
 %%PORTNAME%%_create_datadir()
